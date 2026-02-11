@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>Our Loveprint</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --stripeA: rgba(255, 170, 200, 0.30);
+      --stripeB: rgba(255, 170, 200, 0.10);
+      --paper: #fffafd;
+
+      --panel: rgba(255, 214, 229, 0.74);
+      --panelBorder: rgba(255,255,255,0.85);
+
+      --ink: #ff3f86;
+      --ink2:#ff86ad;
+
+      --title:#c22b66;
+      --text:#3b2f3a;
+      --muted:#7a6372;
+
+      --btnBg: rgba(255, 255, 255, 0.90);
+      --btnBorder: rgba(255,255,255,0.96);
+
+      --shadow: 0 18px 42px rgba(60, 20, 50, 0.16);
+      --shadow2: 0 10px 18px rgba(60, 20, 50, 0.10);
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html,body{ height:100%; }
+
+    body{
+      font-family: "Baloo 2", "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color: var(--text);
+      overflow:hidden;
+
+      background:
+        linear-gradient(to right,
+          var(--stripeA) 0px,   var(--stripeA) 6px,
+          transparent 6px,      transparent 26px,
+          var(--stripeB) 26px,  var(--stripeB) 34px,
+          transparent 34px,     transparent 54px
+        ),
+        radial-gradient(1200px 800px at 50% 10%, rgba(255,255,255,0.85), transparent 60%),
+        linear-gradient(180deg, var(--paper), #ffffff);
+      background-size: 54px 100%, auto, auto;
+      background-position: 0 0, center, center;
+    }
+
+    .page{
+      position:relative;
+      height:100%;
+      width:100%;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:
+        max(16px, env(safe-area-inset-top))
+        14px
+        max(16px, env(safe-area-inset-bottom));
+    }
+    .page.active{ display:flex; }
+
+    /* Page letter must scroll */
+    #pageLetter{
+  height: 100%;
+  overflow: hidden;   /* ⛔ page gak boleh scroll */
+}
+    #pageLetter.active{ display:block; } /* not flex */
+
+    /* ===== Shared top hint ===== */
+    .hint{
+      position:absolute;
+      top: max(16px, env(safe-area-inset-top));
+      left:50%;
+      transform:translateX(-50%);
+      text-align:center;
+      width:min(560px, 92vw);
+      padding:0 10px;
+      user-select:none;
+      z-index: 5;
+    }
+    .hint .title{
+      font-weight:800;
+      letter-spacing:.2px;
+      font-size:16px;
+      color: var(--title);
+      text-shadow: 0 6px 16px rgba(255, 63, 134, 0.10);
+    }
+    .hint .sub{
+      margin-top:6px;
+      font-size:13.2px;
+      color:var(--muted);
+      line-height:1.35;
+      font-weight:700;
+    }
+
+    /* ===== Page 1: Loveprint Panel ===== */
+    .love-panel{
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform:translate(-50%,-58%);
+      width:min(380px, 88vw);
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      background: var(--panel);
+      border: 1px solid var(--panelBorder);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+      opacity:1;
+      pointer-events:auto;
+      will-change: transform, opacity;
+      z-index: 2;
+    }
+
+    .glow-halo{
+      position:absolute;
+      inset:-22px;
+      border-radius:30px;
+      filter: blur(18px);
+      opacity:.92;
+      background:
+        radial-gradient(circle at 40% 35%, rgba(255,184,208,.62), transparent 55%),
+        radial-gradient(circle at 60% 65%, rgba(255,255,255,.55), transparent 55%),
+        radial-gradient(circle at 55% 40%, rgba(255,134,173,.34), transparent 60%);
+      pointer-events:none;
+    }
+
+    .love-svg{
+      position:absolute;
+      inset:0;
+      padding:18px;
+      pointer-events:none;
+    }
+    svg{ width:100%; height:100%; display:block; }
+
+    .ridge{
+      fill:none;
+      stroke: var(--ink);
+      stroke-width: 1.85;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter:
+        drop-shadow(0 0 6px rgba(255,184,208,.78))
+        drop-shadow(0 0 18px rgba(255,63,134,.20));
+      opacity:.98;
+    }
+    .ridge.soft{
+      stroke: var(--ink2);
+      opacity:.86;
+      stroke-width: 1.55;
+      filter:
+        drop-shadow(0 0 5px rgba(255,184,208,.65))
+        drop-shadow(0 0 14px rgba(255,63,134,.12));
+    }
+
+    .love-panel.pulsing{
+      animation: heartBeatPanel 1.15s ease-in-out 0s 2;
+    }
+    .love-panel.pulsing .glow-halo{
+      animation: glowBeat 1.15s ease-in-out 0s 2;
+    }
+    @keyframes heartBeatPanel{
+      0%   { transform:translate(-50%,-58%) scale(1); }
+      20%  { transform:translate(-50%,-58%) scale(1.02); }
+      40%  { transform:translate(-50%,-58%) scale(0.995); }
+      62%  { transform:translate(-50%,-58%) scale(1.03); }
+      100% { transform:translate(-50%,-58%) scale(1); }
+    }
+    @keyframes glowBeat{
+      0%   { opacity:.85; transform: scale(0.98); }
+      20%  { opacity:1;   transform: scale(1.04); }
+      40%  { opacity:.82; transform: scale(1.00); }
+      62%  { opacity:1;   transform: scale(1.06); }
+      100% { opacity:.9;  transform: scale(1.00); }
+    }
+    .love-panel.unlocking{
+      transition: transform 720ms cubic-bezier(.2,.9,.2,1), opacity 520ms ease;
+      transform:translate(-50%,-78%) scale(0.90);
+    }
+
+/* ===== Idle heartbeat (after unlocked) ===== */
+.love-panel.idle{
+  /* posisi harus sama kayak unlocking biar gak lompat */
+  transform: translate(-50%,-78%) scale(0.90);
+  animation: idlePulse 1.8s ease-in-out infinite;
+}
+.love-panel.idle .glow-halo{
+  animation: idleGlow 1.8s ease-in-out infinite;
+}
+
+@keyframes idlePulse{
+  0%, 100% { transform: translate(-50%,-78%) scale(0.90); }
+  50%      { transform: translate(-50%,-78%) scale(0.93); }
+}
+@keyframes idleGlow{
+  0%, 100% { opacity: .85; transform: scale(1.00); }
+  50%      { opacity: 1;   transform: scale(1.06); }
+}
+
+    /* Confetti */
+    .confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 6;
+    }
+    .confetti i{
+      position:absolute;
+      top:-10%;
+      width:10px;
+      height:18px;
+      border-radius:8px;
+      opacity:0;
+      transform: translate3d(0,0,0) rotate(0deg);
+      filter: drop-shadow(0 6px 10px rgba(60,20,50,.10));
+      animation: confFall var(--dur) cubic-bezier(.15,.8,.25,1) var(--delay) forwards;
+    }
+    .confetti i.dot{ width:8px; height:8px; border-radius:999px; }
+    .confetti i.line{ width:6px; height:20px; border-radius:999px; }
+    .confetti i.miniheart{
+      width:12px; height:12px; border-radius:0;
+      clip-path: polygon(50% 85%, 8% 48%, 8% 26%, 22% 14%, 36% 18%, 50% 32%, 64% 18%, 78% 14%, 92% 26%, 92% 48%);
+    }
+    @keyframes confFall{
+      0%   { opacity:0; transform: translate3d(var(--x), -30px, 0) rotate(var(--r)); }
+      10%  { opacity:1; }
+      100% { opacity:0; transform: translate3d(calc(var(--x) + var(--drift)), 100vh, 0) rotate(calc(var(--r) + 480deg)); }
+    }
+
+    /* Access granted card */
+    .card{
+      position:absolute;
+      left:50%;
+      top:50%;
+      transform: translate(-50%,-8%);
+      width:min(400px, 92vw);
+      padding:16px 16px 14px;
+      border-radius:22px;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.94);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      opacity:0;
+      translate: 0 18px;
+      transition: opacity 420ms ease, translate 420ms ease;
+      pointer-events:none;
+      z-index: 3;
+    }
+    .card.show{ opacity:1; translate: 0 0; }
+
+    .card .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      background: linear-gradient(135deg, rgba(255,214,229,.65), rgba(255,255,255,.72));
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow: var(--shadow2);
+      font-weight:800;
+      font-size:12px;
+      letter-spacing:.35px;
+      color: #7a2950;
+    }
+    .badge svg{ width:16px; height:16px; }
+
+    .card .msg{
+      margin-top:12px;
+      font-size:16px;
+      line-height:1.45;
+      font-weight:800;
+      min-height: 60px;
+      color:#3a2431;
+    }
+    .card .sub{
+      margin-top:8px;
+      font-size:13.2px;
+      color:var(--muted);
+      line-height:1.45;
+      font-weight:700;
+    }
+
+    .caret{
+      display:inline-block;
+      width:8px;
+      height:1em;
+      border-left:2px solid rgba(59,47,58,.55);
+      margin-left:3px;
+      translate: 0 2px;
+      animation: caretBlink 1s steps(2,end) infinite;
+    }
+    @keyframes caretBlink{ 50%{ opacity:0; } }
+
+    /* Hold button (page 1) */
+    .hold-btn{
+      position:absolute;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left:50%;
+      transform:translateX(-50%);
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+      width:min(440px, 92vw);
+      z-index: 4;
+    }
+    .btn-pill{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:14px 16px;
+      border-radius:999px;
+      background: var(--btnBg);
+      border: 1px solid var(--btnBorder);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position:relative;
+      overflow:hidden;
+      transition: transform 120ms ease, box-shadow 180ms ease;
+    }
+    .btn-pill::before{
+      content:"";
+      position:absolute;
+      inset:-40px -60px;
+      background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,.55) 45%, transparent 70%);
+      transform: translateX(-60%);
+      animation: sheen 4.8s ease-in-out infinite;
+      opacity:.55;
+    }
+    @keyframes sheen{
+      0%, 65% { transform: translateX(-70%) rotate(10deg); }
+      100%    { transform: translateX(60%) rotate(10deg); }
+    }
+    .btn-icon{
+      width:50px;
+      height:50px;
+      border-radius:16px;
+      background: linear-gradient(135deg, rgba(255,214,229,.76), rgba(255,255,255,.86));
+      border: 1px solid rgba(255,255,255,.94);
+      box-shadow: var(--shadow2);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      position:relative;
+      z-index:1;
+    }
+    .btn-icon .emoji{
+      font-size:26px;
+      line-height:1;
+      filter: drop-shadow(0 6px 10px rgba(60,20,50,.12));
+      transform: translateY(1px);
+    }
+    .btn-text{
+      position:relative;
+      z-index:1;
+      flex:1;
+      text-align:left;
+      line-height:1.2;
+    }
+    .btn-text .big{
+      font-weight:800;
+      font-size:15px;
+      letter-spacing:.2px;
+      color:#6f244a;
+    }
+    .btn-text .small{
+      margin-top:3px;
+      font-weight:800;
+      font-size:13px;
+      color:rgba(122, 99, 114, .95);
+    }
+    .progress-pill{
+      position:absolute;
+      left:14px; right:14px; bottom:8px;
+      height:6px;
+      border-radius:999px;
+      overflow:hidden;
+      background: rgba(255, 214, 229, 0.35);
+      border: 1px solid rgba(255,255,255,.70);
+    }
+    .progress-bar{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, rgba(255,63,134,.70), rgba(255,184,208,.88), rgba(255,255,255,.78));
+      border-radius:999px;
+      transition: width 60ms linear;
+    }
+    .holding .btn-pill{
+      transform: translateY(1px) scale(0.992);
+      box-shadow: 0 14px 30px rgba(60, 20, 50, 0.18);
+    }
+
+    /* Floating open-letter button (page 1) */
+    .letter-float-btn{
+      position: fixed;
+      right: 14px;
+      bottom: calc(max(16px, env(safe-area-inset-bottom)) + 86px);
+      z-index: 9999;
+
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 14px;
+
+      font-family: inherit;
+      font-weight: 900;
+      letter-spacing: .2px;
+      font-size: 13px;
+
+      color: #6f244a;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.96);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 260ms ease, transform 260ms ease;
+    }
+  
+    body.on-letter #goLetterBtn{
+  opacity: 0 !important;
+  transform: translateY(10px) !important;
+  pointer-events: none !important;
+}
+  
+    .letter-float-btn.show{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .letter-float-btn:active{
+      transform: translateY(1px) scale(0.99);
+    }
+
+    /* ===== Page 2 ===== */
+    .letter-stage{
+      height: 100%;                 /* 🔑 kunci 1 layar */
+      width: min(560px, 92vw);
+      margin: 0 auto;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+  }
+
+    .back-btn{
+      position: fixed; /* ✅ ngambang, gak ganggu layout */
+      top: max(16px, env(safe-area-inset-top));
+      left: 14px;
+      z-index: 9999;
+
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:10px 12px;
+      font-family: inherit;
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:13px;
+      color:#6f244a;
+      background: rgba(255,255,255,0.88);
+      border: 1px solid rgba(255,255,255,0.95);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+  }
+    .back-btn:active{ transform: translateY(1px) scale(0.99); }
+
+    .envelope-panel{
+      width: 100%;
+      max-width: 560px;
+      flex: 1;                     /* 🔑 ngambil sisa tinggi layar */
+      min-height: 0;               /* 🔑 WAJIB biar child bisa scroll */
+      display: flex;
+      flex-direction: column;
+      border-radius: 28px;
+      background: rgba(255, 214, 229, 0.55);
+      padding: 16px;
+      overflow: hidden;            /* ⛔ cegah kepotong keluar */
+  }
+
+    .envelope-title{
+      text-align:center;
+      color: var(--title);
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:16px;
+      margin-top:4px;
+    }
+    .envelope-sub{
+      text-align:center;
+      font-weight:800;
+      font-size:13px;
+      color: var(--muted);
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .tap-row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin:14px 0 8px;
+    }
+    .tap-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(255,255,255,0.92);
+      box-shadow: var(--shadow2);
+      font-weight:900;
+      color:#6f244a;
+      font-size:12.5px;
+      letter-spacing:.25px;
+    }
+    .tap-progress{
+      width:min(360px, 86vw);
+      height:8px;
+      border-radius:999px;
+      overflow:hidden;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(255,255,255,0.70);
+      margin: 10px auto 0;
+    }
+    .tap-progress > div{
+      height:100%;
+      width:0%;
+      border-radius:999px;
+      background: linear-gradient(90deg, rgba(255,63,134,.65), rgba(255,184,208,.88), rgba(255,255,255,.85));
+      transition: width 120ms ease;
+    }
+
+    .envelope-wrap{
+      display:flex;
+      justify-content:center;
+      margin-top:16px;
+      user-select:none;
+    }
+  
+    .envelope-wrap{
+  transition: max-height 360ms ease, opacity 260ms ease;
+  max-height: 280px;
+}
+
+/* setelah unlock */
+.envelope-panel.unsealed .envelope-wrap{
+  max-height: 110px;   /* 👈 dipendekin */
+  opacity: 0.9;
+}
+
+    .envelope-img{
+      width:min(320px, 82vw);
+      aspect-ratio: 4 / 3;
+      border-radius:22px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.65);
+      object-fit: cover;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: transform 120ms ease;
+    }
+    .envelope-img:active{ transform: scale(0.99); }
+    .envelope-shake{ animation: shake 240ms ease; }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      25%{ transform: translateX(-3px); }
+      50%{ transform: translateX(3px); }
+      75%{ transform: translateX(-2px); }
+      100%{ transform: translateX(0); }
+    }
+
+    .letter-card{
+  width: 100%;
+  margin-top: 12px;
+
+  flex: 1;          /* paper memanjang */
+  min-height: 0;    /* PENTING biar child bisa scroll */
+
+  display: flex;    /* bikin layout vertikal */
+  flex-direction: column;
+
+  border-radius: 22px;
+  background: rgba(255,255,255,0.92);
+  padding: 16px;
+  overflow: hidden; /* scroll pindah ke text */
+}
+
+.letter-card h3{
+  flex: 0 0 auto;   /* judul jangan ikut ngerebut space */
+  margin-bottom: 10px;
+}
+
+.letter-text{
+  flex: 1 1 auto;   /* INI kuncinya: ngisi sisa tinggi */
+  min-height: 0;    /* INI kuncinya juga */
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  padding-right: 6px;
+  white-space: pre-wrap;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .confetti i{
+    animation: none !important;
+    opacity: 1 !important;
+    top: 8% !important;
+    transform: translate3d(var(--x), 0, 0) rotate(var(--r)) !important;
+  }
+}
+  </style>
+</head>
+
+<body>
+
+  <audio id="bgm" src="bg.mp3" loop preload="auto"></audio>
+
+  <!-- ===================== PAGE 1 ===================== -->
+  <div class="page active" id="pageUnlock">
+    <div class="hint">
+      <div class="title">LOVEPRINT <3</div>
+      <div class="sub">Keep holding until it completes. Let go early and it resets.</div>
+    </div>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+    <div class="love-panel" id="lovePanel" aria-hidden="true">
+      <div class="glow-halo"></div>
+      <div class="love-svg">
+        <svg id="loveSvg" viewBox="0 0 300 300" role="img" aria-label="Heart-shaped fingerprint"></svg>
+      </div>
+    </div>
+
+    <div class="card" id="card" aria-live="polite">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.6c2.2 0 4 1.7 4 3.9 0 2.2-1.8 3.9-4 3.9S8 8.7 8 6.5C8 4.3 9.8 2.6 12 2.6Z" fill="none" stroke="rgba(111,36,74,.75)" stroke-width="1.8"/>
+          <path d="M5 21c1.2-5 3.9-8 7-8s5.8 3 7 8" fill="none" stroke="rgba(111,36,74,.75)" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+        ACCESS GRANTED
+      </div>
+      <div class="msg" id="msg"></div>
+      <div class="sub" id="sub"></div>
+    </div>
+
+    <button class="hold-btn" id="holdBtn" type="button" aria-label="Hold fingerprint button">
+      <div class="btn-pill" id="btnPill">
+        <div class="btn-icon" aria-hidden="true"><div class="emoji">🫆</div></div>
+        <div class="btn-text">
+          <div class="big">Hold to unlock</div>
+          <div class="small">stay a little longer… it’s drawing</div>
+        </div>
+        <div class="progress-pill" aria-hidden="true">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Floating button OUTSIDE pageUnlock so it never gets clipped -->
+  <button class="letter-float-btn" id="goLetterBtn" type="button" aria-label="Go to letter page">
+    Open the letter →
+  </button>
+
+  <!-- ===================== PAGE 2 ===================== -->
+  <div class="page" id="pageLetter">
+    <div class="confetti" id="confetti2" aria-hidden="true"></div>
+    <div class="letter-stage">
+      <button class="back-btn" id="backBtn" type="button" aria-label="Back">Back</button>
+
+      <div class="envelope-panel">
+        <div class="envelope-title">Tap 20 times to unlock the secret</div>
+        <div class="envelope-sub">Each tap is a tiny knock. Keep going until it opens.</div>
+
+        <div class="tap-row">
+          <div class="tap-pill" id="tapCountPill">Taps: 0 / 20</div>
+          <div class="tap-pill" id="tapHintPill">Unlocked: No</div>
+        </div>
+
+        <div class="tap-progress" aria-hidden="true"><div id="tapBar"></div></div>
+
+        <div class="envelope-wrap">
+          <img id="envelopeImg" class="envelope-img" alt="Envelope (JPG)" />
+        </div>
+
+        <div class="letter-card" id="letterCard">
+          <h3>To Hesa</h3>
+          <div class="letter-text" id="letterText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ===================== AUDIO =====================
+  const bgm = document.getElementById('bgm');
+  function startBgm(){
+    if(!bgm) return;
+    bgm.volume = 0.18;
+    bgm.play().catch(()=>{});
+  }
+
+  // ===================== PAGE SWITCH =====================
+  const pageUnlock = document.getElementById('pageUnlock');
+  const pageLetter = document.getElementById('pageLetter');
+  const goLetterBtn = document.getElementById('goLetterBtn');
+  const backBtn = document.getElementById('backBtn');
+
+const confetti2 = document.getElementById('confetti2');
+let confetti2Timer = null;
+
+function startConfettiPage2(){
+  if(confetti2Timer) return;
+  // bersihin dulu biar rapi
+  clearConfetti(confetti2);
+
+  // spawn rutin: sedikit tapi sering biar halus & ringan
+  confetti2Timer = setInterval(() => {
+    spawnConfettiInto(confetti2, 6, 9000, 15000); // lambat banget
+  }, 600);
+}
+
+function stopConfettiPage2(){
+  if(confetti2Timer){
+    clearInterval(confetti2Timer);
+    confetti2Timer = null;
+  }
+  clearConfetti(confetti2);
+}
+
+  function showPage(which){
+  if(which === 'unlock'){
+    pageUnlock.classList.add('active');
+    pageLetter.classList.remove('active');
+
+    document.body.classList.remove('on-letter');   // ✅ penting
+   stopConfettiPage2();
+  } else {
+    pageUnlock.classList.remove('active');
+    pageLetter.classList.add('active');
+
+    document.body.classList.add('on-letter');      // ✅ penting
+    goLetterBtn.classList.remove('show');          // ✅ paksa hilang
+
+    // kalau ada scroll di letter-card, balikin ke atas:
+    const lc = document.getElementById('letterCard');
+    if(lc) lc.scrollTop = 0;
+  }
+}
+
+  goLetterBtn.addEventListener('click', () => {
+    showPage('letter');
+    startBgm();
+  });
+  backBtn.addEventListener('click', () => {
+    showPage('unlock');
+    // musik tetap jalan (kalau mau berhenti: bgm.pause(); bgm.currentTime=0;)
+  });
+
+  // ===================== LOVEPRINT (PAGE 1) =====================
+  const lovePanel = document.getElementById('lovePanel');
+  const loveSvg  = document.getElementById('loveSvg');
+  const holdBtn  = document.getElementById('holdBtn');
+  const btnPill  = document.getElementById('btnPill');
+  const progressBar = document.getElementById('progressBar');
+  const confettiEl = document.getElementById('confetti');
+  const card = document.getElementById('card');
+  const msgEl = document.getElementById('msg');
+  const subEl = document.getElementById('sub');
+
+  const HOLD_THRESHOLD_MS = 280;
+  const DRAW_DURATION_MS  = 9800;
+  const RIDGE_COUNT = 52;
+  const SPIRAL_COUNT = 26;
+  const ARC_COUNT = 18;
+  const BREAK_DASH = true;
+
+  const PULSE_TOTAL_MS = 2300;
+  const UNLOCK_DELAY_MS = 260;
+  const TYPE_SPEED_MS = 60;
+
+  const CONFETTI_COLORS = [
+    "rgba(255,63,134,.42)",
+    "rgba(255,184,208,.65)",
+    "rgba(255,255,255,.75)",
+    "rgba(255,214,229,.60)",
+    "rgba(255,236,244,.70)"
+  ];
+
+  const COPY_MAIN = "Unlocked by your touch… now my heart knows it’s really you.";
+  const COPY_SUB  = "Want the secret? Tap “Open the letter”.";
+
+  function heartPoints(samples = 320) {
+    const pts = [];
+    for (let i = 0; i <= samples; i++) {
+      const t = (i / samples) * Math.PI * 2;
+      const x = 16 * Math.pow(Math.sin(t), 3);
+      const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+      pts.push({ x, y });
+    }
+    return pts;
+  }
+  function pointsToPath(pts, cx, cy, scale) {
+    let d = '';
+    const map = p => ({ X: cx + p.x * scale, Y: cy - p.y * scale });
+    const first = map(pts[0]);
+    d += `M ${first.X.toFixed(2)} ${first.Y.toFixed(2)} `;
+    for (let i = 1; i < pts.length; i++) {
+      const p = map(pts[i]);
+      d += `L ${p.X.toFixed(2)} ${p.Y.toFixed(2)} `;
+    }
+    d += 'Z';
+    return d;
+  }
+  function makeHeartPath(scale, cx=150, cy=155) {
+    return pointsToPath(heartPoints(340), cx, cy, scale);
+  }
+  function makeSpiralPath(cx, cy, turns, startR, endR, wobble=0.68, pts=720) {
+    let d = '';
+    for (let i = 0; i <= pts; i++) {
+      const u = i / pts;
+      const ang = u * turns * Math.PI * 2;
+      const r = startR + (endR - startR) * (u*u*0.85 + u*0.15);
+      const wob = (Math.sin(ang * 1.7) + Math.sin(ang * 0.9) + Math.sin(ang * 0.23)) * 0.33 * wobble;
+      const rr = Math.max(0, r + wob);
+      const x = cx + Math.cos(ang) * rr;
+      const y = cy + Math.sin(ang) * rr;
+      d += (i === 0) ? `M ${x.toFixed(2)} ${y.toFixed(2)} ` : `L ${x.toFixed(2)} ${y.toFixed(2)} `;
+    }
+    return d;
+  }
+  function makeArcPath(cx, cy, r, startAng, endAng, wobble=0.5, pts=160) {
+    let d = '';
+    for (let i = 0; i <= pts; i++) {
+      const u = i/pts;
+      const ang = startAng + (endAng - startAng) * u;
+      const wob = (Math.sin(ang*2.4) + Math.sin(ang*0.8)) * 0.25 * wobble;
+      const rr = r + wob;
+      const x = cx + Math.cos(ang) * rr;
+      const y = cy + Math.sin(ang) * rr;
+      d += (i===0) ? `M ${x.toFixed(2)} ${y.toFixed(2)} ` : `L ${x.toFixed(2)} ${y.toFixed(2)} `;
+    }
+    return d;
+  }
+
+  let ridgePaths = [];
+  function buildLoveprint() {
+    loveSvg.innerHTML = '';
+    ridgePaths = [];
+    const ns = 'http://www.w3.org/2000/svg';
+    const defs = document.createElementNS(ns, 'defs');
+
+    const clip = document.createElementNS(ns, 'clipPath');
+    clip.setAttribute('id', 'heartClip');
+    const clipHeart = document.createElementNS(ns, 'path');
+    clipHeart.setAttribute('d', makeHeartPath(5.75));
+    clip.appendChild(clipHeart);
+    defs.appendChild(clip);
+
+    const filter = document.createElementNS(ns, 'filter');
+    filter.setAttribute('id', 'grain');
+    filter.setAttribute('x', '-20%'); filter.setAttribute('y', '-20%');
+    filter.setAttribute('width', '140%'); filter.setAttribute('height', '140%');
+
+    const feTurb = document.createElementNS(ns, 'feTurbulence');
+    feTurb.setAttribute('type', 'fractalNoise');
+    feTurb.setAttribute('baseFrequency', '0.85');
+    feTurb.setAttribute('numOctaves', '2');
+    feTurb.setAttribute('stitchTiles', 'stitch');
+
+    const feColor = document.createElementNS(ns, 'feColorMatrix');
+    feColor.setAttribute('type', 'matrix');
+    feColor.setAttribute('values', `
+      1 0 0 0 0
+      0 1 0 0 0
+      0 0 1 0 0
+      0 0 0 .14 0
+    `.trim().replace(/\s+/g,' '));
+
+    filter.appendChild(feTurb);
+    filter.appendChild(feColor);
+    defs.appendChild(filter);
+    loveSvg.appendChild(defs);
+
+    const g = document.createElementNS(ns, 'g');
+    g.setAttribute('clip-path', 'url(#heartClip)');
+
+    const baseScale = 5.62;
+    for (let i = 0; i < RIDGE_COUNT; i++) {
+      const p = document.createElementNS(ns, 'path');
+      const s = baseScale - i * 0.11;
+      p.setAttribute('d', makeHeartPath(Math.max(2.0, s)));
+      p.setAttribute('class', (i % 4 === 0) ? 'ridge soft' : 'ridge');
+      if (BREAK_DASH) {
+        const dashA = 9 + (i % 7) * 2;
+        const dashB = 5 + (i % 6) * 2;
+        p.setAttribute('stroke-dasharray', `${dashA} ${dashB}`);
+      }
+      if (i % 9 === 0) p.setAttribute('stroke-width', '1.45');
+      if (i % 11 === 0) p.setAttribute('opacity', '0.86');
+
+      g.appendChild(p);
+      ridgePaths.push(p);
+    }
+
+    for (let i = 0; i < SPIRAL_COUNT; i++) {
+      const p = document.createElementNS(ns, 'path');
+      const left = (i % 2 === 0);
+      const cx = left ? 116 : 184;
+      const cy = 155;
+
+      const turns = 3.9 + i * 0.14;
+      const startR = 1.0 + i * 0.45;
+      const endR   = 64  + i * 0.92;
+
+      p.setAttribute('d', makeSpiralPath(cx, cy, turns, startR, endR, 0.70, 760));
+      p.setAttribute('class', (i % 3 === 1) ? 'ridge soft' : 'ridge');
+      p.setAttribute('stroke-width', (i % 4 === 0) ? '1.35' : '1.55');
+      if (BREAK_DASH) p.setAttribute('stroke-dasharray', `${11 + (i%5)*3} ${7 + (i%4)*3}`);
+
+      g.appendChild(p);
+      ridgePaths.push(p);
+    }
+
+    for (let i = 0; i < ARC_COUNT; i++) {
+      const p = document.createElementNS(ns, 'path');
+      const t = i / ARC_COUNT;
+      const cx = 150 + (Math.sin(t * Math.PI * 2) * 8);
+      const cy = 160 + (Math.cos(t * Math.PI * 2) * 6);
+      const r  = 40 + i * 2.8;
+
+      const startAng = (0.6 + t * 0.8) * Math.PI;
+      const endAng   = startAng + (0.9 + (i%3)*0.18);
+
+      p.setAttribute('d', makeArcPath(cx, cy, r, startAng, endAng, 0.65, 200));
+      p.setAttribute('class', (i % 2 === 0) ? 'ridge soft' : 'ridge');
+      p.setAttribute('stroke-width', (i % 3 === 0) ? '1.35' : '1.55');
+      if (BREAK_DASH) p.setAttribute('stroke-dasharray', `${10 + (i%4)*3} ${7 + (i%3)*3}`);
+
+      g.appendChild(p);
+      ridgePaths.push(p);
+    }
+
+    const outer = document.createElementNS(ns, 'path');
+    outer.setAttribute('d', makeHeartPath(5.75));
+    outer.setAttribute('class', 'ridge');
+    outer.setAttribute('stroke-width', '2.6');
+    outer.setAttribute('stroke-dasharray', '0');
+
+    loveSvg.appendChild(g);
+    loveSvg.appendChild(outer);
+    ridgePaths.push(outer);
+
+    const grainRect = document.createElementNS(ns, 'rect');
+    grainRect.setAttribute('x','0'); grainRect.setAttribute('y','0');
+    grainRect.setAttribute('width','300'); grainRect.setAttribute('height','300');
+    grainRect.setAttribute('filter','url(#grain)');
+    grainRect.setAttribute('opacity','0.28');
+    grainRect.setAttribute('clip-path','url(#heartClip)');
+    loveSvg.appendChild(grainRect);
+
+    ridgePaths.forEach((path) => {
+      const len = path.getTotalLength();
+      path.style.strokeDasharray = `${len}`;
+      path.style.strokeDashoffset = `${len}`;
+      path.style.transition = 'none';
+    });
+  }
+  buildLoveprint();
+  // ✅ DEBUG: test confetti muncul atau nggak
+
+  function clearConfetti(el){
+  if(!el) return;
+  el.innerHTML = '';
+}
+
+function spawnConfettiInto(container, count = 14, durMin = 8000, durMax = 14000) {
+  if(!container) return;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('i');
+    const types = ['dot','line','miniheart'];
+    el.classList.add(types[Math.floor(Math.random() * types.length)]);
+
+    const left  = Math.random() * 100;
+    const drift = (Math.random() * 140 - 70).toFixed(0) + 'px';
+    const delay = (Math.random() * 700).toFixed(0) + 'ms';
+    const dur   = (durMin + Math.random() * (durMax - durMin)).toFixed(0) + 'ms';
+    const rot   = (Math.random() * 180 - 90).toFixed(0) + 'deg';
+
+    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    el.style.left = left + '%';
+    el.style.background = color;
+
+    el.style.setProperty('--x', (Math.random() * 20 - 10).toFixed(0) + 'px');
+    el.style.setProperty('--drift', drift);
+    el.style.setProperty('--delay', delay);
+    el.style.setProperty('--dur', dur);
+    el.style.setProperty('--r', rot);
+
+    el.addEventListener('animationend', () => el.remove(), { once:true });
+    container.appendChild(el);
+  }
+}
+
+  function typewriter(text, targetEl, speedMs, onDone) {
+  targetEl.textContent = '';
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  targetEl.appendChild(caret);
+
+  let i = 0;
+  const timer = setInterval(() => {
+    caret.insertAdjacentText('beforebegin', text[i] ?? '');
+    i++;
+    if (i >= text.length) {           // ✅ FIX: pakai text.length
+      clearInterval(timer);
+      caret.remove();
+      onDone && onDone();
+    }
+  }, speedMs);
+}
+
+  let holding = false;
+  let holdStart = 0;
+  let rafId = null;
+  let committed = false;
+  let lastProgress = 0;
+  let unlocked = false;
+
+  function setProgress(progress01) {
+    const p = Math.min(1, Math.max(0, progress01));
+    ridgePaths.forEach((path, idx) => {
+      const len = path.getTotalLength();
+      const delay = (idx / ridgePaths.length) * 0.22;
+      const local = (p - delay) / (1 - 0.22);
+      const lp = Math.min(1, Math.max(0, local));
+      path.style.strokeDashoffset = `${len * (1 - lp)}`;
+    });
+    progressBar.style.width = `${p * 100}%`;
+    lastProgress = p;
+  }
+
+  function resetDrawingOnly() {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+    holding = false;
+    committed = false;
+    lastProgress = 0;
+    unlocked = false;
+
+    btnPill.classList.remove('holding');
+    lovePanel.classList.remove('pulsing','unlocking','idle');
+    card.classList.remove('show');
+    goLetterBtn.classList.remove('show');
+    msgEl.textContent = '';
+    subEl.textContent = '';
+    clearConfetti(confettiEl);
+
+    ridgePaths.forEach((p) => {
+      const len = p.getTotalLength();
+      p.style.strokeDashoffset = `${len}`;
+    });
+    progressBar.style.width = `0%`;
+  }
+
+  function runUnlockSequence() {
+  if (unlocked) return;
+  unlocked = true;
+
+  lovePanel.classList.add('pulsing');
+  spawnConfettiInto(confettiEl, 28, 1600, 2800);
+
+  setTimeout(() => {
+    lovePanel.classList.remove('pulsing');
+    lovePanel.classList.add('unlocking');
+
+    // ✅ setelah animasi unlocking selesai, bikin detak pelan terus
+    setTimeout(() => {
+      lovePanel.classList.add('idle');
+    }, 740); // 720ms transisi + sedikit buffer
+
+    setTimeout(() => {
+      card.classList.add('show');
+      goLetterBtn.classList.add('show');
+      typewriter(COPY_MAIN, msgEl, TYPE_SPEED_MS, () => {
+        subEl.textContent = COPY_SUB;
+      });
+    }, 520);
+
+  }, PULSE_TOTAL_MS + UNLOCK_DELAY_MS);
+}
+
+  function tick(now) {
+    if (!holding) return;
+    const elapsed = now - holdStart;
+
+    if (elapsed >= HOLD_THRESHOLD_MS) {
+      if (!committed) committed = true;
+
+      const drawElapsed = elapsed - HOLD_THRESHOLD_MS;
+      const progress = drawElapsed / DRAW_DURATION_MS;
+      setProgress(progress);
+
+      if (progress >= 1) {
+        holding = false;
+        btnPill.classList.remove('holding');
+        progressBar.style.width = `100%`;
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        runUnlockSequence();
+        return;
+      }
+    } else {
+      const pre = elapsed / HOLD_THRESHOLD_MS;
+      progressBar.style.width = `${pre * 8}%`;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function startHold(e) {
+  e.preventDefault();
+  if (rafId) cancelAnimationFrame(rafId);
+
+  if (unlocked) return; // ✅ setelah unlock, ignore hold
+
+  if (lastProgress >= 1) {
+    resetDrawingOnly();
+  } else {
+    ridgePaths.forEach((p) => {
+      const len = p.getTotalLength();
+      p.style.strokeDashoffset = `${len}`;
+    });
+    progressBar.style.width = `0%`;
+    lovePanel.classList.remove('pulsing','unlocking','idle');
+    card.classList.remove('show');
+    goLetterBtn.classList.remove('show');
+    msgEl.textContent = '';
+    subEl.textContent = '';
+    clearConfetti();
+  }
+
+  holding = true;
+  committed = false;
+  holdStart = performance.now();
+  btnPill.classList.add('holding');
+  rafId = requestAnimationFrame(tick);
+}
+
+  function endHold(e) {
+  e.preventDefault();
+  if (unlocked) return;                 // ✅ kalau udah unlock, jangan reset
+  if (holding && lastProgress < 1) resetDrawingOnly();
+}
+
+  holdBtn.addEventListener('pointerdown', startHold, { passive:false });
+  window.addEventListener('pointerup', endHold, { passive:false });
+  window.addEventListener('pointercancel', endHold, { passive:false });
+  window.addEventListener('touchmove', (e) => { if (holding) e.preventDefault(); }, { passive:false });
+  window.addEventListener('blur', () => {
+  if (unlocked) return;                 // ✅ kalau udah unlock, jangan reset
+  if (lastProgress < 1) resetDrawingOnly();
+});
+
+  // ===================== ENVELOPE PAGE (PAGE 2) =====================
+  const envelopeImg = document.getElementById('envelopeImg');
+  const tapCountPill = document.getElementById('tapCountPill');
+  const tapHintPill = document.getElementById('tapHintPill');
+  const tapBar = document.getElementById('tapBar');
+  const letterCard = document.getElementById('letterCard');
+  const letterText = document.getElementById('letterText');
+
+  const TAPS_REQUIRED = 20;
+  let taps = 0;
+  let letterUnlocked = false;
+  let typing = false;
+
+  const LETTER_P1 =
+`happy valentine sayangg
+
+today feels softer than usual, like the world decided to slow down a bit. maybe it's because it's valentine, or maybe it's just what happens every time i think about u. so i'm writing this quietly, without trying too hard, just letting my thoughts drift back to u, like they always do.
+
+thank u for being here in ways that feel gentle and real. for staying, for choosing us, even when things aren't perfect. i notice the way u show up, the way u try, the way u make space for me in ur life, and it honestly means more than i ever manage to say out loud.
+
+i love the small, ordinary things we share. random talks that don’t need a reason, silence that feels comfortable instead of awkward, and the calm that comes from knowing u’re there. with u, love doesn’t feel loud or overwhelming. it feels warm, steady, and safe, like something i can rest in.
+
+valentine’s day is usually about big gestures and sweetness, but what we have feels softer than that. unforced, unrushed, just slowly growing in its own time. i’m grateful for what we’re building, for the understanding we keep finding, and for the patience we keep giving each other.
+
+i hope today reminds u of how loved and valued u are. not just today, but in all the quiet, ordinary days we keep sharing. thank u for being u, and for letting me love u in the way i know how.`;
+
+const LETTER_P2 =
+`happy valentine.
+with all my love,
+jey 🤍`;
+
+function buildEnvelopeJPG() {
+    const c = document.createElement('canvas');
+    c.width = 900;
+    c.height = 675;
+    const ctx = c.getContext('2d');
+
+    const g = ctx.createLinearGradient(0, 0, c.width, c.height);
+    g.addColorStop(0, '#fff6fa');
+    g.addColorStop(1, '#ffe2ee');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, c.width, c.height);
+
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#ff7faa';
+    for (let y = 40; y < c.height; y += 48) {
+      for (let x = (y / 48) % 2 ? 36 : 16; x < c.width; x += 64) {
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+
+    const pad = 110;
+    const ex = pad, ey = 165, ew = c.width - pad * 2, eh = 360;
+
+    ctx.shadowColor = 'rgba(60,20,50,0.18)';
+    ctx.shadowBlur = 28;
+    ctx.shadowOffsetY = 18;
+
+    ctx.fillStyle = '#ffffff';
+    roundRect(ctx, ex, ey, ew, eh, 28);
+    ctx.fill();
+
+    ctx.shadowColor = 'transparent';
+
+    ctx.fillStyle = '#ffe8f2';
+    roundRect(ctx, ex + 10, ey + 10, ew - 20, eh - 20, 22);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(194,43,102,0.45)';
+    ctx.lineWidth = 10;
+    ctx.beginPath();
+    ctx.moveTo(ex + 26, ey + 30);
+    ctx.lineTo(ex + ew / 2, ey + eh / 2 + 18);
+    ctx.lineTo(ex + ew - 26, ey + 30);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(194,43,102,0.35)';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(ex + 26, ey + eh - 30);
+    ctx.lineTo(ex + ew / 2, ey + eh / 2 + 18);
+    ctx.lineTo(ex + ew - 26, ey + eh - 30);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,63,134,0.55)';
+    ctx.beginPath();
+    ctx.arc(ex + ew / 2, ey + eh / 2 + 36, 34, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '700 44px "Baloo 2", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('sealed', ex + ew / 2, ey + eh / 2 + 36);
+
+    envelopeImg.src = c.toDataURL('image/jpeg', 0.92);
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+  }
+
+  buildEnvelopeJPG();
+
+  function updateTapUI() {
+    tapCountPill.textContent = `Taps: ${taps} / ${TAPS_REQUIRED}`;
+    tapBar.style.width = `${(taps / TAPS_REQUIRED) * 100}%`;
+    tapHintPill.textContent = `Unlocked: ${letterUnlocked ? 'Yes' : 'No'}`;
+  }
+
+  function typeLetter() {
+  if (typing) return;
+  typing = true;
+
+  letterText.textContent = '';
+  const fullText = LETTER_P1 + "\n\n" + LETTER_P2;
+  let i = 0;
+
+  const caret = document.createElement('span');
+  caret.className = 'caret';
+  letterText.appendChild(caret);
+
+  const timer = setInterval(() => {
+    caret.insertAdjacentText('beforebegin', fullText[i] || '');
+    i++;
+    if (i >= fullText.length) {
+      clearInterval(timer);
+      caret.remove();
+      typing = false;
+
+      // ✅ confetti infinity MULAI setelah letter selesai muncul
+      startConfettiPage2();
+    }
+  }, 100);
+}
+
+  function unlockLetter() {
+    if (letterUnlocked) return;
+    letterUnlocked = true;
+    updateTapUI();
+
+    envelopeImg.classList.add('envelope-shake');
+    setTimeout(() => envelopeImg.classList.remove('envelope-shake'), 260);
+
+    setTimeout(typeLetter, 260);
+    document.querySelector('.envelope-panel')
+  ?.classList.add('unsealed');
+  }
+
+  envelopeImg.addEventListener('click', () => {
+    if (letterUnlocked) return;
+
+    taps++;
+    if (taps > TAPS_REQUIRED) taps = TAPS_REQUIRED;
+
+    updateTapUI();
+
+    envelopeImg.classList.remove('envelope-shake');
+    void envelopeImg.offsetWidth;
+    envelopeImg.classList.add('envelope-shake');
+
+    if (taps >= TAPS_REQUIRED) unlockLetter();
+  });
+
+  updateTapUI();
+
+})();
+</script>
+</body>
+</html>
